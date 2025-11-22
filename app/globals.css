@@ -1,3 +1,8 @@
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+/* TODO: Separate swiper css for web UI not admin UI */
+
 @import "tailwindcss";
 
 :root {
