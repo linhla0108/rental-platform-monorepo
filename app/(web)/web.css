@@ -1,0 +1,32 @@
+/* Web-specific styles */
+/* Swiper CSS - chỉ dùng cho web UI */
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
+/* Web-specific custom styles */
+.web-container {
+  /* Add web-specific container styles here */
+}
+
+.web-header {
+  /* Add web-specific header styles here */
+}
+
+.web-footer {
+  /* Add web-specific footer styles here */
+}
+
+/* Web-specific animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.web-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
