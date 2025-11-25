@@ -1,8 +1,11 @@
+import { updateSession } from "@/lib/supabase/middleware"
 import type { NextRequest } from "next/server"
-import { NextResponse } from "next/server"
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Cập nhật session Supabase (không redirect, cho phép truy cập web UI mà không cần đăng nhập)
+  const supabaseResponse = await updateSession(request)
 
   // Bảo vệ admin routes (có thể thêm authentication logic ở đây)
   if (pathname.startsWith("/admin")) {
@@ -13,7 +16,7 @@ export function middleware(request: NextRequest) {
     // }
   }
 
-  return NextResponse.next()
+  return supabaseResponse
 }
 
 export const config = {
