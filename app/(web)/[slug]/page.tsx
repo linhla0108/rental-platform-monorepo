@@ -1,12 +1,16 @@
-import {
-  DEFAULT_DESCRIPTION,
-  DEFAULT_TITLE,
-  createMetadata,
-} from "@/util/seo/metadata"
+import { createMetadata } from "@/util/seo/metadata"
 import { Metadata } from "next"
 import Image from "next/image"
 
-export default async function Home() {
+const DetailPage = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) => {
+  const { slug } = await params
+
+  console.log("🚀 ~ DetailPage ~ slug:", slug)
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between bg-white px-16 py-32 sm:items-start dark:bg-black">
@@ -70,7 +74,17 @@ export default async function Home() {
   )
 }
 
-export const generateMetadata: Metadata = createMetadata({
-  title: DEFAULT_TITLE,
-  description: DEFAULT_DESCRIPTION,
-})
+export default DetailPage
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> => {
+  const { slug } = await params
+  return createMetadata({
+    title: "Trang chi tiết - Homify",
+    description: "Trang chi tiết về sản phẩm",
+    path: `/${slug}`,
+  })
+}
