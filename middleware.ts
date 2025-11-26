@@ -1,34 +1,49 @@
-import { updateSession } from "@/lib/supabase/middleware"
-import type { NextRequest } from "next/server"
+import { updateSession } from "@/lib/supabase/middleware-supabase"
+import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const method = request.method
 
-  // Cập nhật session Supabase (không redirect, cho phép truy cập web UI mà không cần đăng nhập)
-  const supabaseResponse = await updateSession(request)
+  // Cập nhật session Supabase và lấy thông tin authentication
 
-  // Bảo vệ admin routes (có thể thêm authentication logic ở đây)
-  if (pathname.startsWith("/admin")) {
-    // TODO: Thêm authentication check
-    // const isAuthenticated = checkAuth(request);
-    // if (!isAuthenticated) {
-    //   return NextResponse.redirect(new URL("/login", request.url));
-    // }
+  // Chặn các method PUT, DELETE, POST trong API (trừ auth endpoints)
+  if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
+    if (["PUT", "DELETE", "POST"].includes(method)) {
+      const { isAuthenticated } = await updateSession(request)
+
+      if (!isAuthenticated) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Authentication required",
+            code: "UNAUTHORIZED",
+          },
+          { status: 401 },
+        )
+      }
+    }
   }
 
-  return supabaseResponse
+  if (pathname.startsWith("/admin")) {
+    const { response, isAuthenticated } = await updateSession(request)
+
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/login", request.url))
+    }
+    return response
+  }
 }
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (public folder)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }

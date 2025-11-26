@@ -3,6 +3,6 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   const supabase = await createClient()
-  const { data: facilities } = await supabase.from("houses").select()
-  return NextResponse.json(facilities)
+  const { data: houses } = await supabase.from("houses").select()
+  return NextResponse.json(houses)
 }
