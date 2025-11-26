@@ -2,7 +2,18 @@ import { Database } from "@/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
-export async function updateSession(request: NextRequest) {
+export interface UpdateSessionResult {
+  response: NextResponse
+  isAuthenticated: boolean
+}
+
+/**
+ * Cập nhật session Supabase và kiểm tra authentication
+ * Sử dụng getClaims() để refresh session và check auth trong một lần gọi
+ */
+export async function updateSession(
+  request: NextRequest,
+): Promise<UpdateSessionResult> {
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -38,6 +49,14 @@ export async function updateSession(request: NextRequest) {
   // Gọi getClaims() để refresh session, không cần lưu kết quả vì cho phép truy cập web UI mà không cần đăng nhập
   await supabase.auth.getClaims()
 
+  // Sau khi refresh session, kiểm tra authentication bằng getUser()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isAuthenticated = !!user
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
@@ -51,5 +70,8 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
 
-  return supabaseResponse
+  return {
+    response: supabaseResponse,
+    isAuthenticated,
+  }
 }
